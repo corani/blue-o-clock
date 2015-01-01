@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html><head>
+<title>Blue o'clock</title>
+<meta charset="UTF-8" />
+<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,100' rel='stylesheet' type='text/css' />
+
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1" />
+<meta name="description" content="Blue o'clock" />
+
+<meta property="og:title" content="Blue o'clock" />
+<meta property='og:locale' content="en_US"/>
+<meta property='og:description' content="the time....... now in colour."/>
+<meta property="og:type" content="Website" />
+
+<style>
+
+@media all and (max-width: 1024px) {
+
+h1 { font-size:40px; font-weight:400; transition:all 0.6s; -webkit-transition:all 0.6s; background: rgba(0,0,0,0.5);}
+h2 { font-size:20px; font-weight:300; transition:all 0.6s; -webkit-transition:all 0.6s; background: rgba(0,0,0,0.5); display:block; width: 10rem;}
+#a { position:absolute; bottom:10px; right:10px; font-size:12px; transition:all 0.6s; -webkit-transition:all 0.6s;}
+
+}
+
+@media all and (min-width: 1024px) {
+
+h1 { font-size:120px; font-weight:400; transition:all 0.6s; -webkit-transition:all 0.6s; background: rgba(0,0,0,0.5);}
+h2 { font-size:30px; font-weight:300; transition:all 0.6s; -webkit-transition:all 0.6s; background: rgba(0,0,0,0.5); display:block; width: 10rem;}
+#a { position:absolute; bottom:10px; right:10px; font-size:12px; transition:all 0.6s; -webkit-transition:all 0.6s;}
+
+}
+
+body { color:white; background:black; font-family:"open sans";}
+table { position:absolute; width:100%; height:100%; top:0px; left:0px;}
+* {color:inherit;}
+</style>
+
+</head>
+
+<body onLoad="start()">
+
+<table cellspacing="0" cellpadding="0"><td height="100%" width="100%" align="center" valign="middle">
+<h1 id="t"></h1><br>
+<h2 id="h"></h2>
+</td></table>
+<div id="a">Inspired by <a href="http://whatcolourisit.scn9a.org/" target="_BLANK">What Colour Is It?</a></div>
+</body>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script type="text/javascript">
+
+String.prototype.format = function() {
+    var arg = arguments[0];
+    return this.replace(/{([0-9a-z]+)}/g, function(match, field) {
+        return (arg[field].length == 1 ? "0" : "") + arg[field];
+    });
+};
+
+function schedule(delay, cb) {
+    var timer = {
+        time: {
+        	h: "", m: "", s: "",
+	        update: function() {
+	            var d = new Date();
+	            this.h = d.getHours().toString();
+                this.m = d.getMinutes().toString();
+                this.s = d.getSeconds().toString();
+	        },
+	        toString: function() {
+	            return "{h} : {m} : {s}".format(this);
+	        }
+	    },
+	    rgb: {
+        	r: "", g: "", b: "",
+        	update: function(time) {
+            	this.r = Math.round(time.h * (256/24)).toString(16);
+	            this.g = Math.round(time.m * (256/60)).toString(16);
+            	this.b = Math.round(time.s * (256/60)).toString(16);
+        	},
+        	toString: function() {
+            	return "#{r}{g}{b}".format(this);
+            }
+    	},
+    	schedule: function(cb) {
+    	    var time = this.time;
+    	    var rgb = this.rgb;
+    	    var func = function() {
+        	    time.update();
+        	    rgb.update(time);
+        	    cb(time.toString(), rgb.toString());
+    	        setTimeout(func, delay);
+    	    };
+    	    func();
+    	}
+    };
+    timer.schedule(cb);
+}
+
+function start() {
+	schedule(1000, function(time, rgb) {
+        $("#t").html(time);
+        $("#h").html(rgb);
+        $("body").css({
+            "background": rgb,
+            "transition": "all 0.8s",
+            "-webkit-transition": "all 0.8s"
+        });
+	});
+}
+
+</script>
+
+</html>
+
